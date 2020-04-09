@@ -6,7 +6,10 @@
 #include <chrono>
 #include <unistd.h>
 #include <thread>
-
+void worker_thread(Mandelbrot &mandelbrot, SDLProgram &program, int y){
+    program.updateLine(y,mandelbrot.drawLine(y));
+   
+}
 int main(){
 
     int width =1000;
@@ -29,9 +32,5 @@ int main(){
         std::cout << a.what() << std::endl;
         return 1;
         }
-    return 0;
-}
-int worker_thread(Mandelbrot &mandelbrot, SDLProgram &program, int y){
-    program.updateLine(y,mandelbrot.drawLine(y));
     return 0;
 }
