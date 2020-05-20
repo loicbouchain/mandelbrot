@@ -31,7 +31,7 @@ void workerV2(SDLProgram &program,int lignedebut, int lignefin, Mandelbrot &mand
         << " millisecondes" << std::endl;
 }
 
-void worker(SDLProgram &program,int lignedebut, int lignefin, Mandelbrot &mandelbrot,int num_worker)
+void worker(SDLProgram &program,int lignedebut, int lignefin, Mandelbrot &mandelbrot,int num_worker) //Version 1 du worker, celui ci est à améliorer dans la dernière partie du tp
 {
     std::chrono::steady_clock::time_point t_begin = std::chrono::steady_clock::now();
     for (int y = lignedebut; y < lignefin; y++)
@@ -47,8 +47,6 @@ void worker(SDLProgram &program,int lignedebut, int lignefin, Mandelbrot &mandel
         << " Temps traitement : "
         << std::chrono::duration_cast<std::chrono::milliseconds>(t_end - t_begin).count()
         << " millisecondes" << std::endl;
-
-
 }
 //faire random ?
 // couper les lignes en plus de trahcnhes et les aoués auw workers genre couper en 10 et ah ouai mais non ^^ sino
@@ -59,18 +57,20 @@ void compute(SDLProgram &program, int height, Mandelbrot &mandelbrot, int nb_wor
 {
     std::chrono::steady_clock::time_point t_begin = std::chrono::steady_clock::now();
     std::thread arrayWorkers[nb_workers];
-    int tranche = height/(nb_workers*2);
+    int tranche = height/(nb_workers*2); 
+    /*les lignes affectés aux workers sont définis en fonction du nombre de worker 
+    Chaque worker va "travailler" sur 2 tranches, */
     for (int y = 0; y < nb_workers; y++)
     {
-        int lignedebut = (tranche *y)+1;
+        int lignedebut = (tranche *y)+1; 
         int lignefin = tranche*(y+1);
-        arrayWorkers[y]=std::thread(workerV2, std::ref(program), lignedebut,lignefin, std::ref(mandelbrot),y,height);
+        arrayWorkers[y]=std::thread(workerV2, std::ref(program), lignedebut,lignefin, std::ref(mandelbrot),y,height);//on ajoute le worker a la liste
         
         //arrayWorkers[y]=workerThread;
     }
     for (int y = 0; y < nb_workers; y++)
     {
-        arrayWorkers[y].join();
+        arrayWorkers[y].join(); //Chaque worker devra avoir fini son traitement pour que le programme se finisse
     }
     
 
@@ -88,9 +88,9 @@ void compute(SDLProgram &program, int height, Mandelbrot &mandelbrot, int nb_wor
 int main(){
 
     // Initialize a mandelbrot object of given width and height
-    int width = 1000;
-    int height = 1000;
-    int nb_worker=20;
+    int width = 1000; //largeur du mandelbrot
+    int height = 1000; //hauteur du mandelbrot
+    int nb_worker=20; //défini le nombre de worker
     Mandelbrot mandelbrot(width,height,-2.1,0.6,-1.2,1.2,500);
     try{
         
@@ -115,8 +115,8 @@ int main(){
         << " milliseconds to compute the fractal." << std::endl;
         
         // Launch the render loop*/
-        std::thread computeThread(compute, std::ref(program), height, std::ref(mandelbrot),nb_worker);
-        computeThread.join();
+        std::thread computeThread(compute, std::ref(program), height, std::ref(mandelbrot),nb_worker);// création du thread principal qui va créer les autres threads
+        computeThread.join();// computeThread doit être fin pour que le programme se termine
         program.loop();
 
     }
